@@ -1,0 +1,64 @@
+# 服务名称
+spring:
+  application:
+    name: eurekaclient-feign
+
+feign:
+  hystrix:
+    enabled: true
+
+#ribbon，制定服务配置，必须加上对应的服务名才能生效
+eureka-client1:
+  ribbon:
+    #com.netflix.loadbalancer.RandomRule 随机
+    #-----------------------------------------------------------------------
+    #com.netflix.loadbalancer.RoundRobinRule 轮询 默认
+    #-----------------------------------------------------------------------
+    #com.netflix.loadbalancer.RetryRule 重试
+    #重试:在一段时间内通过RoundRobinRule选择服务实例，一段时间内没有选择出服务则线程终止
+    #-----------------------------------------------------------------------
+    #com.netflix.loadbalancer.WeightedResponseTimeRule 响应时间权重
+    #响应时间权重:根据平均响应时间来计算权重
+    #举个简单的列子，就是4个实例，A，B，C，D平均响应时间为10，40，80，100，所以总响应时间是10+40+80+100=230，每个实例权重为总响应时间与实际自身的平均响应时间的差的累积所得，所以A,B,C,D的权重分别如下：
+    #实例A: 230-10=220
+    #实例B：220+（230-40）=410
+    #实例C：410+（230-80）=560
+    #实例D：560+（230-100）=690
+    #所以实例A：[0.220]
+    #实例B:(220,410]
+    #实例C:(410,560]
+    #实例D:(560，690)
+    #-----------------------------------------------------------------------
+    #com.netflix.loadbalancer.BestAvailableRule 最空闲连接策略
+    #最空闲连接策略:当前空闲的提供者将优先被选取给消费者使用
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+    #请求连接超时时间
+    ConnectTimeout: 500
+    #请求处理的超时时间
+    ReadTimeout: 1000
+    #对所有请求都进行重试
+    OkToRetryOnAllOperations: true
+    #切换实例的重试次数
+    MaxAutoRetriesNextServer: 2
+    #对当前实例的重试次数
+    MaxAutoRetries: 1
+
+server:
+  port: 8020
+
+# 配置Eureka Server 信息
+eureka:
+  client:
+    serviceUrl:
+      #api:node@使用security进行注册验证
+      defaultZone: http://api:node@localhost:8000/eureka/
+  #服务注册配置
+  instance:
+    # 自定义实例编号
+    instance-id: ${spring.application.name}:${server.port}:@project.version@
+    # 配置使用主机名注册服务 默认使用主机名注册
+    #hostname: node1
+    # 优先使用IP地址方式进行注册服务
+    #prefer-ip-address: true
+    # 配置使用指定IP
+    #ip-address: 127.0.0.1

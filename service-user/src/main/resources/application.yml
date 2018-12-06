@@ -1,0 +1,26 @@
+# 服务名称
+spring:
+  application:
+    name: srevice-user
+  #thymeleaf模板引擎
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    #开发时关闭缓存,不然没法看到实时页面
+    cache: false
+    servlet:
+      content-type: text/html
+
+server:
+  port: 8040
+
+# 配置Eureka Server 信息
+eureka:
+  client:
+    serviceUrl:
+      #api:node@使用security进行注册验证
+      defaultZone: http://api:node@localhost:8000/eureka/
+  #服务注册配置
+  instance:
+    # 自定义实例编号
+    instance-id: ${spring.application.name}:${server.port}:@project.version@

@@ -1,0 +1,43 @@
+# 服务名称
+spring:
+  application:
+    name: srevice-zuul
+
+server:
+  port: 8030
+
+# 配置Eureka Server 信息
+eureka:
+  client:
+    serviceUrl:
+      #api:node@使用security进行注册验证
+      defaultZone: http://api:node@localhost:8000/eureka/
+  #服务注册配置
+  instance:
+    # 自定义实例编号
+    instance-id: ${spring.application.name}:${server.port}:@project.version@
+
+#反向代理配置
+zuul:
+  #重定向时url地址栏不变
+  add-host-header: true
+  routes:
+    feign-1:
+      path: /feign1/**
+      serviceId: eurekaclient-feign
+    feign-2:
+      path: /user/**
+      #反向代理的服务
+      serviceId: srevice-user
+      #设置url前缀是否丢弃
+      #当stripPrefix=true的时候 （http://127.0.0.1:8181/api/user/list -> http://192.168.1.100:8080/user/list）
+      #当stripPrefix=false的时候（http://127.0.0.1:8181/api/user/list -> http://192.168.1.100:8080/api/user/list）
+      #stripPrefix: true
+      #反向代理时不丢弃http头信息
+      sensitiveHeaders: Cookie,Set-Cookie,Authorization
+      #直接转发
+      #url: http://127.0.0.1:8040/
+      #url为外部域名时会重定向，端口为eureka注册过的服务时仍然是转发
+      #url: http://www.baidu.com
+      #配置ribbon负载均衡
+      #ribbon.listOfServers=192.168.1.100:8080,192.168.1.101:8080,192.168.1.102:8080
